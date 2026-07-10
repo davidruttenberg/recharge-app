@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>RECHARGE v9.2.3</title>
+<title>RECHARGE v9.2.4</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -401,6 +401,7 @@ button{font:inherit}
     <div class="label">Stamp passport</div>
     <div class="card passport">
       <div class="passport-top"><div><div class="passport-title">Phoebe’s Collection</div><div class="passport-sub">Tap any stamp to see its meaning and unlock rule.</div></div><button class="btn btn-outline" style="padding:10px 12px;border-radius:12px" onclick="toggleOnlyUnlocked()">Filter</button></div>
+      <div id="stampProgress" style="font-size:12px;color:var(--muted);font-weight:700;margin:2px 0 10px"></div>
       <div id="stampGrid" class="stamp-grid"></div>
     </div>
   </div>
@@ -463,7 +464,24 @@ const stampLibrary=[
   {name:'Independent Operator', icon:'❓', strand:'Mystery', tier:'Purple', meaning:'Several resets completed without reminders. Quiet autonomy.', rule:'Unlock by initiating resets consistently on your own.', unlocked:false, color:'t-purple', mystery:true},
   {name:'Signal Over Noise', icon:'❓', strand:'Mystery', tier:'Purple', meaning:'You found clarity during a noisy emotional state.', rule:'Unlock by recovering cleanly during a chaotic moment.', unlocked:false, color:'t-purple', mystery:true},
   {name:'Recharge Captain', icon:'❓', strand:'Mystery', tier:'Purple', meaning:'One strong week combining resets, work, and self-direction.', rule:'Unlock by completing a balanced week.', unlocked:false, color:'t-purple', mystery:true},
-  {name:'Quiet Power', icon:'❓', strand:'Mystery', tier:'Purple', meaning:'Restraint without spectacle. You chose steadiness over escalation.', rule:'Unlock by choosing a reset instead of conflict.', unlocked:false, color:'t-purple', mystery:true}
+  {name:'Quiet Power', icon:'❓', strand:'Mystery', tier:'Purple', meaning:'Restraint without spectacle. You chose steadiness over escalation.', rule:'Unlock by choosing a reset instead of conflict.', unlocked:false, color:'t-purple', mystery:true},
+  {name:'Beat by Voice', icon:'🎤', strand:'Music', tier:'Green', meaning:'A vocal moment turned into rhythm instead of spiraling.', rule:'Complete a Beat Reset triggered by a vocal alert.', unlocked:false, color:'t-green', vocal:true},
+  {name:'Loud and Clear', icon:'📣', strand:'Sports', tier:'Green', meaning:'Big voice, bigger recovery. You moved your body instead of just your volume.', rule:'Complete an Athlete Drill triggered by a vocal alert.', unlocked:false, color:'t-green', vocal:true},
+  {name:'Echo Restore', icon:'🌊', strand:'Eco', tier:'Blue', meaning:'You let the sound settle instead of letting it spread.', rule:'Complete an Eco Restore triggered by a vocal alert.', unlocked:false, color:'t-blue', vocal:true},
+  {name:'Vocal Verdict', icon:'🗣️', strand:'Policy', tier:'Blue', meaning:'You gave yourself a fair hearing before reacting.', rule:'Complete a Policy reset triggered by a vocal alert.', unlocked:false, color:'t-blue', vocal:true},
+  {name:'Voice Actor', icon:'🎭', strand:'Games', tier:'Yellow', meaning:'All that performance energy, redirected into something real.', rule:'Complete a Game reset triggered by a vocal alert.', unlocked:false, color:'t-yellow', vocal:true},
+  {name:'First Word Reset', icon:'🥕', strand:'Vocal', tier:'Green', meaning:'Your very first vocal-triggered reset. The system heard you, and you chose to reset.', rule:'Complete your first vocal-triggered reset.', unlocked:false, color:'t-green', vocal:true},
+  {name:'Dramatic Pause', icon:'✨', strand:'Vocal', tier:'Blue', meaning:'You caught a big, dramatic moment early and gave it somewhere to go.', rule:'Complete a vocal-triggered reset during a high-energy moment.', unlocked:false, color:'t-blue', vocal:true},
+  {name:'Encore Performance', icon:'🎶', strand:'Vocal', tier:'Yellow', meaning:'Five vocal-triggered resets in the books. This is officially a pattern of self-awareness.', rule:'Complete 5 vocal-triggered resets total.', unlocked:false, color:'t-yellow', vocal:true},
+  {name:'Vocal Range', icon:'🎹', strand:'Vocal', tier:'Blue', meaning:'You brought voice-triggered resets into three different strands. Range, on and off the mic.', rule:'Trigger resets by voice in 3 different strands.', unlocked:false, color:'t-blue', vocal:true},
+  {name:'Morning Monologue', icon:'☀️', strand:'Vocal', tier:'Green', meaning:'Starting the day by noticing yourself early.', rule:'Complete a vocal-triggered reset before noon.', unlocked:false, color:'t-green', vocal:true},
+  {name:'Night Owl Narrator', icon:'🌙', strand:'Vocal', tier:'Red', meaning:'Even late in the day, you caught the loop and answered it.', rule:'Complete a vocal-triggered reset in the evening.', unlocked:false, color:'t-red', vocal:true},
+  {name:'Full Cast', icon:'🎪', strand:'Vocal', tier:'Yellow', meaning:'Every strand, once each, all triggered by your own voice. The whole ensemble.', rule:'Earn a vocal-triggered stamp in all five strands.', unlocked:false, color:'t-yellow', vocal:true},
+  {name:'Ten Voices', icon:'🏆', strand:'Vocal', tier:'Red', meaning:'Ten times you noticed the sound of yourself and chose to reset. That is real, repeated self-awareness.', rule:'Complete 10 vocal-triggered resets total.', unlocked:false, color:'t-red', vocal:true},
+  {name:'Quiet Curtain Call', icon:'🎬', strand:'Vocal', tier:'Blue', meaning:'From loud to fully calm. That is the whole point of this system, working exactly as designed.', rule:'Go from a loud vocal trigger to a top after-score.', unlocked:false, color:'t-blue', vocal:true},
+  {name:'Repeat Performance', icon:'🔁', strand:'Vocal', tier:'Yellow', meaning:'Not a one-off. This is becoming a real habit across different days.', rule:'Trigger vocal resets on 3 separate days.', unlocked:false, color:'t-yellow', vocal:true},
+  {name:'Stage Presence', icon:'❓', strand:'Mystery', tier:'Purple', meaning:'Three days running, you noticed your own voice and chose a reset. That kind of consistency is rare.', rule:'Unlock by completing a vocal-triggered reset streak of 3 days in a row.', unlocked:false, color:'t-purple', mystery:true, vocal:true},
+  {name:'Voice of Reason', icon:'❓', strand:'Mystery', tier:'Purple', meaning:'You went from a rough moment to real relief, and your own voice is what started it.', rule:'Unlock by improving significantly after a loud, high-energy vocal trigger.', unlocked:false, color:'t-purple', mystery:true, vocal:true}
 ];
 
 function goTo(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');currentScreen=id;window.scrollTo(0,0);if(id==='s5') renderStamps();}
@@ -767,7 +785,7 @@ function endReset(){
   goTo('s4');
 }
 function toggleOnlyUnlocked(){showOnlyUnlocked=!showOnlyUnlocked;renderStamps()}
-function renderStamps(){const grid=document.getElementById('stampGrid');grid.innerHTML='';const items=showOnlyUnlocked?stampLibrary.filter(s=>s.unlocked):stampLibrary;items.forEach((s,idx)=>{const card=document.createElement('div');card.className='stamp-card '+(s.unlocked?'':'locked');card.onclick=()=>openStampModal(s);const iconClass=s.unlocked?s.color:'t-locked';const shownName=(s.mystery&&!s.unlocked)?'???':s.name;const shownMeta=(s.mystery&&!s.unlocked)?'Mystery · Locked':(s.strand+' · '+s.tier);card.innerHTML=`<div class="stamp-icon ${iconClass}">${s.unlocked? s.icon : (s.mystery?'❓':'🔒')}</div><div class="stamp-card-name">${shownName}</div><div class="stamp-card-meta">${shownMeta}</div>`;grid.appendChild(card);})}
+function renderStamps(){const grid=document.getElementById('stampGrid');grid.innerHTML='';const progEl=document.getElementById('stampProgress');if(progEl){const earned=stampLibrary.filter(s=>s.unlocked).length;progEl.textContent=earned+' of '+stampLibrary.length+' stamps earned';}const items=showOnlyUnlocked?stampLibrary.filter(s=>s.unlocked):stampLibrary;items.forEach((s,idx)=>{const card=document.createElement('div');card.className='stamp-card '+(s.unlocked?'':'locked');card.onclick=()=>openStampModal(s);const iconClass=s.unlocked?s.color:'t-locked';const shownName=(s.mystery&&!s.unlocked)?'???':s.name;const shownMeta=(s.mystery&&!s.unlocked)?'Mystery · Locked':(s.strand+' · '+s.tier);card.innerHTML=`<div class="stamp-icon ${iconClass}">${s.unlocked? s.icon : (s.mystery?'❓':'🔒')}</div><div class="stamp-card-name">${shownName}</div><div class="stamp-card-meta">${shownMeta}</div>`;grid.appendChild(card);})}
 function openStampModal(s){document.getElementById('modalTitle').textContent=(s.mystery&&!s.unlocked)?'Mystery Stamp':s.name;document.getElementById('modalMeta').textContent=(s.mystery&&!s.unlocked)?'Locked mystery reward':`${s.strand} · ${s.tier} tier`;document.getElementById('modalMeaning').textContent=(s.mystery&&!s.unlocked)?'This stamp exists, but its full meaning stays hidden until it is earned. It is meant to feel interesting, not manipulative.':s.meaning;document.getElementById('modalRule').textContent='Unlock rule: '+s.rule;document.getElementById('stampModal').classList.add('open')}
 function closeStampModal(){document.getElementById('stampModal').classList.remove('open')}
 renderStamps();
@@ -950,7 +968,57 @@ function commitAfterScoreAndSubmit(nextScreen) {
   // Unlock the stamp in the library
   const s = stampLibrary.find(x => x.name === (stamp ? stamp.stamp_name : ''));
   if (s) s.unlocked = true;
+
+  // ---- VOCAL TRIGGER STAMP LOGIC ----
+  if (_committedTriggerApp === 'Voice/Volume') {
+    processVocalTriggerStamps(selectedTile, beforeScore, score);
+  }
+
   goTo(nextScreen);
+}
+
+function processVocalTriggerStamps(tile, before, after) {
+  const vocalStrandMap = {
+    music: 'Beat by Voice', sports: 'Loud and Clear', eco: 'Echo Restore',
+    policy: 'Vocal Verdict', game: 'Voice Actor'
+  };
+  const unlockByName = (n) => { const st = stampLibrary.find(x => x.name === n); if (st && !st.unlocked) { st.unlocked = true; submitToSheet({type:'stamp', stamp_name:st.name, strand:st.strand, tier:st.tier, trigger_reset:st.name}); return true; } return false; };
+
+  // Strand-specific vocal stamp
+  const strandStamp = vocalStrandMap[tile];
+  if (strandStamp) unlockByName(strandStamp);
+
+  // Load / update vocal trigger tracking data
+  const raw = localStorage.getItem('recharge_vocal_log');
+  let log = raw ? JSON.parse(raw) : [];
+  const today = new Date().toDateString();
+  log.push({ date: today, tile: tile, before: before, after: after, ts: Date.now() });
+  localStorage.setItem('recharge_vocal_log', JSON.stringify(log));
+
+  const totalVocal = log.length;
+  const uniqueDays = new Set(log.map(e => e.date)).size;
+  const uniqueStrands = new Set(log.map(e => e.tile)).size;
+  const hour = new Date().getHours();
+
+  if (totalVocal === 1) unlockByName('First Word Reset');
+  if (totalVocal >= 5) unlockByName('Encore Performance');
+  if (totalVocal >= 10) unlockByName('Ten Voices');
+  if (uniqueStrands >= 3) unlockByName('Vocal Range');
+  if (uniqueStrands >= 5) unlockByName('Full Cast');
+  if (uniqueDays >= 3) unlockByName('Repeat Performance');
+  if (hour < 12) unlockByName('Morning Monologue');
+  if (hour >= 18) unlockByName('Night Owl Narrator');
+  if (before <= 2 && after >= 4) { unlockByName('Dramatic Pause'); unlockByName('Quiet Curtain Call'); unlockByName('Voice of Reason'); }
+
+  // 3-day-in-a-row streak check
+  const dayTimestamps = [...new Set(log.map(e => e.date))].map(d => new Date(d).getTime()).sort((a,b)=>a-b);
+  let maxStreak = 1, curStreak = 1;
+  for (let i = 1; i < dayTimestamps.length; i++) {
+    const diffDays = Math.round((dayTimestamps[i] - dayTimestamps[i-1]) / 86400000);
+    curStreak = diffDays === 1 ? curStreak + 1 : 1;
+    maxStreak = Math.max(maxStreak, curStreak);
+  }
+  if (maxStreak >= 3) unlockByName('Stage Presence');
 }
 
 // On load: restore streak and flush any queued submissions
