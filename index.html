@@ -346,10 +346,11 @@ button{font:inherit}
 <div id="s5" class="screen">
   <div class="sbar"><span>5:34</span><span>86%</span></div>
   <div class="dash-head">
-    <div><div class="dash-title">RECHARGE</div><div class="dash-sub">Thu · June 25</div><div class="test-badge">LIVE DATA CONNECTED ✓</div></div>
+    <div><div class="dash-title" onclick="devTap()">RECHARGE</div><div class="dash-sub">Thu · June 25</div><div class="test-badge">LIVE DATA CONNECTED ✓</div></div>
     <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
       <div class="privacy">🔒 Private</div>
       <div class="privacy" style="background:#2a2332;color:#d6c4f7;cursor:pointer" onclick="openVolumeSettings()">🎤 Volume</div>
+<div id="devPill" class="privacy" style="background:#162238;color:#6ea8ff;cursor:pointer;display:none" onclick="goTo('s6')">🛠️ Dev</div>
     </div>
   </div>
   <div class="test-warning" style="margin-top:14px"><strong>Reminder:</strong> the streaks, time windows, loop patterns, and stamp progress shown below are placeholders for testing the experience. They are not Phoebe’s actual data yet.</div>
@@ -429,7 +430,18 @@ button{font:inherit}
 </div>
 
 <script>
-let currentScreen='s1';
+let devTapCount = 0;
+let devTapTimer = null;
+function devTap(){
+  devTapCount++;
+  clearTimeout(devTapTimer);
+  devTapTimer = setTimeout(() => { devTapCount = 0; }, 2000);
+  if (devTapCount >= 5) {
+    document.getElementById('devPill').style.display = 'block';
+    devTapCount = 0;
+  }
+}
+let currentScreen='s1'
 let beforeScore=3;
 let afterScore=null;
 let selectedTile='music';
