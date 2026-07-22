@@ -1513,5 +1513,136 @@ if (volConsentAsked && volEnabled) {
     <button class="btn btn-primary" style="flex:1.3" onclick="acceptVolumePrompt()">Yes, take a breather</button>
   </div>
 </div>
+
+<!-- ===================== AUDIO INSIGHT ADD-ON (v9.2.4 -> v9.3.0) ===================== -->
+<!-- Paste everything between these two comment lines directly before </body> in index.html -->
+<!-- All ids below are prefixed with "ai" so they cannot collide with existing s1-s5 screens -->
+
+<style>
+  #s6.screen { }
+  #s6 .ai-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 16px; margin: 16px 20px 0; }
+  #s6 .ai-field { margin-bottom: 12px; }
+  #s6 .ai-field label { display:block; font-size: 11px; letter-spacing:.09em; text-transform:uppercase; color: var(--dim); font-weight:800; margin-bottom:6px; }
+  #s6 select, #s6 input[type="number"] {
+    width:100%; padding:10px 12px; background: var(--surface2); border:1px solid var(--border);
+    border-radius:10px; color: var(--text); font-size:14px;
+  }
+  #s6 .ai-pill { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:800; margin-bottom:10px; }
+  #s6 .ai-pill.high { background: rgba(85,212,154,.15); color: var(--green); }
+  #s6 .ai-pill.mid { background: rgba(242,197,95,.15); color: var(--yellow); }
+  #s6 .ai-pill.low { background: rgba(101,112,135,.15); color: var(--dim); }
+  #s6 .ai-next { background: var(--surface2); border:1px solid var(--border); border-radius:12px; padding:10px 12px; font-size:13px; font-weight:700; margin-top:8px; }
+  #s6 .ai-log { list-style:none; padding:0; margin:10px 0 0; font-size:11px; color: var(--dim); max-height:160px; overflow-y:auto; }
+  #s6 .ai-log li { padding:6px 0; border-top:1px solid var(--border); }
+  #s6 .ai-log li:first-child { border-top:none; }
+</style>
+
+<div id="s6" class="screen">
+  <div class="sbar"><span>Dev</span><span>Audio Insight</span></div>
+  <div class="section">
+    <div class="back" onclick="goTo('s5')">&larr; Back</div>
+    <div class="label">Developer preview</div>
+    <div class="h1">Audio Insight</div>
+    <div class="sub">Simulate a classifier result and preview how RECHARGE would respond.</div>
+  </div>
+
+  <div class="ai-card">
+    <div class="ai-field">
+      <label>Predicted label</label>
+      <select id="aiLabel">
+        <option value="self_talk_target">self_talk_target</option>
+        <option value="normal_conversation">normal_conversation</option>
+        <option value="background_other">background_other</option>
+      </select>
+    </div>
+    <div class="ai-field">
+      <label>Prob self_talk_target</label>
+      <input id="aiProbSelf" type="number" min="0" max="1" step="0.01" value="0.86">
+    </div>
+    <div class="ai-field">
+      <label>Prob normal_conversation</label>
+      <input id="aiProbNormal" type="number" min="0" max="1" step="0.01" value="0.10">
+    </div>
+    <div class="ai-field">
+      <label>Prob background_other</label>
+      <input id="aiProbBg" type="number" min="0" max="1" step="0.01" value="0.04">
+    </div>
+    <div class="row">
+      <button class="btn btn-primary" style="flex:1" onclick="runAudioInsight()">Run decision</button>
+      <button class="btn btn-secondary" style="flex:1" onclick="seedAudioInsight('self')">Self-talk example</button>
+    </div>
+  </div>
+
+  <div class="ai-card">
+    <div id="aiBandPill" class="ai-pill high">Confidence: <span id="aiBandLabel">high self-talk</span></div>
+    <p class="sub" id="aiRecommendation" style="margin-top:0;">When confidence is high, RECHARGE offers a gentle reset invitation instead of a forced block.</p>
+    <div class="ai-next" id="aiNextStep">Offer reset now: Beat / Athlete / Eco menu</div>
+    <ul id="aiLogList" class="ai-log"></ul>
+  </div>
+
+  <div class="dots">
+    <div class="nd"></div><div class="nd"></div><div class="nd"></div><div class="nd"></div><div class="nd on"></div>
+  </div>
+</div>
+
+<script>
+function decideAudioBand(p){
+  if(p >= 0.80) return 'high';
+  if(p >= 0.60) return 'mid';
+  return 'low';
+}
+function runAudioInsight(){
+  var label = document.getElementById('aiLabel').value;
+  var pSelf = parseFloat(document.getElementById('aiProbSelf').value);
+  var pNormal = parseFloat(document.getElementById('aiProbNormal').value);
+  var pBg = parseFloat(document.getElementById('aiProbBg').value);
+  if (isNaN(pSelf) || isNaN(pNormal) || isNaN(pBg) || pSelf<0 || pSelf>1 || pNormal<0 || pNormal>1 || pBg<0 || pBg>1) {
+    alert('Please enter probabilities between 0 and 1.');
+    return;
+  }
+  var band = decideAudioBand(pSelf);
+  var pill = document.getElementById('aiBandPill');
+  var bandLabel = document.getElementById('aiBandLabel');
+  var rec = document.getElementById('aiRecommendation');
+  var next = document.getElementById('aiNextStep');
+
+  pill.classList.remove('high','mid','low');
+  pill.classList.add(band);
+
+  if (band === 'high') {
+    bandLabel.textContent = 'high self-talk';
+    rec.textContent = 'When confidence is high, RECHARGE offers a gentle reset invitation instead of a forced block.';
+    next.textContent = 'Offer reset now: Beat / Athlete / Eco menu';
+  } else if (band === 'mid') {
+    bandLabel.textContent = 'borderline';
+    rec.textContent = 'When confidence sits in the middle band, RECHARGE logs the moment quietly and waits for a second confirming signal.';
+    next.textContent = 'Log only, wait for confirmation';
+  } else {
+    bandLabel.textContent = 'low confidence';
+    rec.textContent = 'When confidence is low, RECHARGE takes no visible action and continues as normal.';
+    next.textContent = 'No intervention';
+  }
+  if ((label === 'normal_conversation' || label === 'background_other') && band !== 'high') {
+    next.textContent = 'No intervention (' + label.replace('_',' ') + ')';
+  }
+
+  var logList = document.getElementById('aiLogList');
+  var li = document.createElement('li');
+  var ts = new Date().toLocaleTimeString();
+  li.textContent = ts + ' - label=' + label + ', self=' + pSelf.toFixed(2) + ' -> band=' + band + ', action="' + next.textContent + '"';
+  logList.insertBefore(li, logList.firstChild);
+}
+function seedAudioInsight(kind){
+  if (kind === 'self') {
+    document.getElementById('aiLabel').value = 'self_talk_target';
+    document.getElementById('aiProbSelf').value = 0.86;
+    document.getElementById('aiProbNormal').value = 0.10;
+    document.getElementById('aiProbBg').value = 0.04;
+  }
+  runAudioInsight();
+}
+</script>
+<!-- ===================== END AUDIO INSIGHT ADD-ON ===================== -->
+
 </body>
 </html>
