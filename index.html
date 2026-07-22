@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>RECHARGE v9.2.6</title>
+<title>RECHARGE v9.2.7</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -1411,7 +1411,7 @@ function flagFalseVolumeAlert(){
   document.getElementById('volumePromptBanner').style.display = 'none';
   volPromptActive = false;
   closeVolumeSettings();
-  logVolumeEvent('false_positive');
+  logVolumeEvent('falsepositive');
 }
 
 function acceptVolumePrompt() {
@@ -1529,7 +1529,7 @@ if (volConsentAsked && volEnabled) {
   </div>
   <div class="section row" style="padding:10px 0 0">
     <button class="btn btn-secondary" style="flex:1" onclick="dismissVolumePrompt()">Not now</button>
-<button class="btn btn-outline" style="flex:1" onclick="flagFalseVolumeAlert()">Not me</button>
+<button class="btn" style="flex:1;background:#2a2f3a;color:#edf1f7;border:1px solid #4a5266" onclick="flagFalseVolumeAlert()">Not me</button>
     <button class="btn btn-primary" style="flex:1.3" onclick="acceptVolumePrompt()">Yes, take a breather</button>
   </div>
 </div>
